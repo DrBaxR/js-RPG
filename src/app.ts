@@ -6,7 +6,6 @@ import { System } from "./ecs/system";
 import { RenderSystem } from "./ecs/systems/render.system";
 
 function main() {
-  const { scene, renderer, camera } = setup();
 
   // initi ecs
   const entities: Entity[] = [];
@@ -17,40 +16,19 @@ function main() {
   // cube entity
   const geometry = new BoxGeometry();
   const material = new MeshBasicMaterial();
-  const cube = new Mesh(geometry, material);
-  scene.add(cube);
+  const cube = renderSystem.createMesh(geometry, material)
 
-  const cubeEntity = new Entity();
-  cubeEntity.addComponent(new TransformComponent(new Vector3(0, 1, 0)));
+  const cubeEntity = new Entity('box');
+  cubeEntity.addComponent(new TransformComponent(new Vector3(0, 2, 0)));
   cubeEntity.addComponent(new RenderableComponent(cube));
   entities.push(cubeEntity);
 
-  animate();
+  gameLoop();
 
-  function animate() {
-    requestAnimationFrame(animate);
+  function gameLoop() {
+    requestAnimationFrame(gameLoop);
 
     systems.forEach(s => s.update());
-
-    // move in render system
-    renderer.render(scene, camera);
-  }
-
-  function setup(): { scene: Scene, renderer: WebGLRenderer, camera: PerspectiveCamera } {
-    const scene = new Scene();
-
-    const canvas = document.querySelector('#c');
-    const renderer = new WebGLRenderer({ canvas });
-    renderer.setSize(canvas.clientWidth, canvas.clientWidth, false);
-
-    const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 5;
-
-    return {
-      scene,
-      renderer,
-      camera
-    }
   }
 }
 
