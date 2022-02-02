@@ -1,29 +1,57 @@
-import { BoxGeometry, DirectionalLight, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
+import { BoxGeometry, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, Vector3, WebGLRenderer } from "three";
+import { RenderableComponent } from "./ecs/components/renderable.component";
+import { TransformComponent } from "./ecs/components/transform.component";
+import { Entity } from "./ecs/entity";
+import { System } from "./ecs/system";
+import { RenderSystem } from "./ecs/systems/render.system";
 
-const app = () => {
-  const scene = new Scene();
-  const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  const renderer = new WebGLRenderer();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(renderer.domElement);
+function main() {
+  const { scene, renderer, camera } = setup();
 
+  // initi ecs
+  const entities: Entity[] = [];
+  const systems: System[] = [];
+  const renderSystem = new RenderSystem(entities);
+  systems.push(renderSystem);
+
+  // cube entity
   const geometry = new BoxGeometry();
-  const material = new MeshBasicMaterial({ color: 0x00ff00 });
+  const material = new MeshBasicMaterial();
   const cube = new Mesh(geometry, material);
   scene.add(cube);
 
-  camera.position.z = 5;
+  const cubeEntity = new Entity();
+  cubeEntity.addComponent(new TransformComponent(new Vector3(0, 1, 0)));
+  cubeEntity.addComponent(new RenderableComponent(cube));
+  entities.push(cubeEntity);
 
-  const animate = () => {
+  animate();
+
+  function animate() {
     requestAnimationFrame(animate);
 
-    cube.rotation.x += 0.01;
-    cube.rotation.y += 0.01;
+    systems.forEach(s => s.update());
 
+    // move in render system
     renderer.render(scene, camera);
   }
 
-  animate();
+  function setup(): { scene: Scene, renderer: WebGLRenderer, camera: PerspectiveCamera } {
+    const scene = new Scene();
+
+    const canvas = document.querySelector('#c');
+    const renderer = new WebGLRenderer({ canvas });
+    renderer.setSize(canvas.clientWidth, canvas.clientWidth, false);
+
+    const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 5;
+
+    return {
+      scene,
+      renderer,
+      camera
+    }
+  }
 }
 
-app();
+main();
