@@ -1,7 +1,7 @@
-import { AmbientLight, BufferGeometry, DirectionalLight, Material, Mesh, PerspectiveCamera, Scene, WebGLRenderer } from "three";
+import { AmbientLight, BufferGeometry, DirectionalLight, Material, Mesh, PerspectiveCamera, Scene, Vector3, WebGLRenderer } from "three";
 import { ComponentType } from "../component";
+import { BodyComponent } from "../components/body.component";
 import { RenderableComponent } from "../components/renderable.component";
-import { TransformComponent } from "../components/transform.component";
 import { Entity } from "../entity";
 import { System } from "../system";
 
@@ -11,7 +11,7 @@ export class RenderSystem extends System {
   private camera: PerspectiveCamera;
 
   constructor(entities: Entity[]) {
-    super(entities, [ComponentType.Renderable, ComponentType.Transform]);
+    super(entities, [ComponentType.Renderable, ComponentType.Body]);
     this.setup();
   }
 
@@ -21,31 +21,31 @@ export class RenderSystem extends System {
     this.renderer.setSize(canvas.clientWidth, canvas.clientWidth, false);
 
     this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    this.camera.position.z = 5;
-    this.camera.position.y = 0;
+    this.camera.position.z = 10;
+    this.camera.position.y = 5;
+    this.camera.lookAt(0, 0, 0);
 
     this.scene = new Scene();
     const directionalLight = new DirectionalLight(0xffffff, 1);
-    directionalLight.position.set(-1, 1, 1)
+    directionalLight.position.set(10, 10, 5)
     this.scene.add(directionalLight);
 
-    const ambientLight = new AmbientLight(0xffffff, 0.2);
+    const ambientLight = new AmbientLight(0xffffff, 0.1);
     this.scene.add(ambientLight);
   }
 
   update(): void {
     this.entities.forEach(entity => {
       const renderableComponent = entity.getComponent(ComponentType.Renderable) as RenderableComponent;
-      const transformComponent = entity.getComponent(ComponentType.Transform) as TransformComponent;
+      const bodyComponent = entity.getComponent(ComponentType.Body) as BodyComponent;
 
-      if (!renderableComponent || !transformComponent)
+      if (!renderableComponent || !bodyComponent)
         return;
 
-      const position = transformComponent.position;
-      renderableComponent.mesh.position.set(position.x, position.y, position.z);
-
-      const rotation = transformComponent.rotation;
-      renderableComponent.mesh.rotation.set(rotation.x, rotation.y, rotation.z);
+      const mesh = renderableComponent.mesh;
+      const body = bodyComponent.body;
+      mesh.position.set(body.position.x, body.position.y, body.position.z);
+      mesh.quaternion.set(body.quaternion.x, body.quaternion.y, body.quaternion.z, body.quaternion.w);
     })
 
     this.renderer.render(this.scene, this.camera);

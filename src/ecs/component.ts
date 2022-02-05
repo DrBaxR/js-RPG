@@ -8,5 +8,5 @@ export abstract class Component {
 
 export enum ComponentType {
   Renderable = 'RENDERABLE',
-  Transform = 'TRANSFORM',
+  Body = 'Body',
 }

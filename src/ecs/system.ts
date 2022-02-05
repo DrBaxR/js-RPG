@@ -12,5 +12,5 @@ export abstract class System {
   }
 
   // called once per frame for each system
-  abstract update(): void;
+  abstract update(dt: number): void;
 }
