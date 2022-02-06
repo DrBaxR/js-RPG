@@ -44,10 +44,11 @@ function main() {
     const cubeBody = physicsSystem.createBody({
       mass: 5,
       position: new CANNON.Vec3(0, 10, 0),
-      shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5))
+      shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5)),
+      fixedRotation: true
     });
 
-    const cubeEntity = new Entity('box');
+    const cubeEntity = new Entity('player');
     cubeEntity.addComponent(new RenderableComponent(cubeMesh));
     cubeEntity.addComponent(new BodyComponent(cubeBody));
     entities.push(cubeEntity);
