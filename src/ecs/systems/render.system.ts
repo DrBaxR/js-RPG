@@ -9,8 +9,10 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 export class RenderSystem extends System {
   private renderer: WebGLRenderer;
   private scene: Scene;
+
   private camera: PerspectiveCamera;
   private controls: OrbitControls;
+  private cameraTarget: Entity;
 
   constructor(entities: Entity[]) {
     super(entities, [ComponentType.Renderable, ComponentType.Body]);
@@ -68,7 +70,22 @@ export class RenderSystem extends System {
       mesh.quaternion.set(body.quaternion.x, body.quaternion.y, body.quaternion.z, body.quaternion.w);
     })
 
+    this.updateCameraPosition();
     this.renderer.render(this.scene, this.camera);
+  }
+
+  private updateCameraPosition() {
+    if (!this.cameraTarget)
+      return;
+
+    const bodyComponent = this.cameraTarget.getComponent(ComponentType.Body) as BodyComponent;
+
+    if (!bodyComponent)
+      return;
+
+    const body = bodyComponent.body;
+    this.controls.target.set(body.position.x, body.position.y, body.position.z);
+    this.controls.update();
   }
 
   createMesh(geometry?: BufferGeometry, material?: Material | Material[], addToScene = true): Mesh {
@@ -80,7 +97,8 @@ export class RenderSystem extends System {
     return mesh;
   }
 
-  setCameraTarget(target: Vector3) {
-    this.controls.target = target;
+  // target MUST have body component
+  setCameraTarget(target: Entity) {
+    this.cameraTarget = target;
   }
 }

@@ -52,6 +52,8 @@ function main() {
     cubeEntity.addComponent(new BodyComponent(cubeBody));
     entities.push(cubeEntity);
 
+    renderSystem.setCameraTarget(cubeEntity);
+
     // ? plane entity
     // render
     const planeGeometry = new PlaneGeometry(100, 100);
