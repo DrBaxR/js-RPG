@@ -4,11 +4,13 @@ import { BodyComponent } from "../components/body.component";
 import { RenderableComponent } from "../components/renderable.component";
 import { Entity } from "../entity";
 import { System } from "../system";
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
 export class RenderSystem extends System {
   private renderer: WebGLRenderer;
   private scene: Scene;
   private camera: PerspectiveCamera;
+  private controls: OrbitControls;
 
   constructor(entities: Entity[]) {
     super(entities, [ComponentType.Renderable, ComponentType.Body]);
@@ -16,20 +18,38 @@ export class RenderSystem extends System {
   }
 
   private setup(): void {
+    this.initRenderer();
+    this.initCamera();
+    this.initScene();
+  }
+
+  private initRenderer() {
     const canvas = document.querySelector('#c');
     this.renderer = new WebGLRenderer({ canvas, antialias: true });
     this.renderer.setSize(canvas.clientWidth, canvas.clientWidth, false);
+  }
 
+  // renderer must be already initialized
+  private initCamera() {
     this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     this.camera.position.z = 10;
     this.camera.position.y = 5;
     this.camera.lookAt(0, 0, 0);
 
+    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+    this.controls.enablePan = false;
+    this.controls.minDistance = 2;
+    this.controls.maxDistance = 15;
+    this.controls.maxPolarAngle = Math.PI / 2.1;
+  }
+
+  private initScene() {
     this.scene = new Scene();
+
     const directionalLight = new DirectionalLight(0xffffff, 1);
     directionalLight.position.set(10, 10, 5)
     this.scene.add(directionalLight);
-
+    
     const ambientLight = new AmbientLight(0xffffff, 0.1);
     this.scene.add(ambientLight);
   }
@@ -58,5 +78,9 @@ export class RenderSystem extends System {
       this.scene.add(mesh);
 
     return mesh;
+  }
+
+  setCameraTarget(target: Vector3) {
+    this.controls.target = target;
   }
 }

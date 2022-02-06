@@ -35,7 +35,7 @@ function main() {
   }
 
   function createSampleEntities() {
-    // ! cube 1
+    // ! cube entity
     // render
     const geometry = new BoxGeometry();
     const material = new MeshPhongMaterial();
@@ -51,34 +51,6 @@ function main() {
     cubeEntity.addComponent(new RenderableComponent(cubeMesh));
     cubeEntity.addComponent(new BodyComponent(cubeBody));
     entities.push(cubeEntity);
-
-    // ! cube 2
-    const cubeMesh2 = renderSystem.createMesh(geometry, material);
-    // physics
-    const cubeBody2 = physicsSystem.createBody({
-      mass: 5,
-      position: new CANNON.Vec3(0.5, 20, 0.5),
-      shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5))
-    });
-
-    const cubeEntity2 = new Entity('box');
-    cubeEntity2.addComponent(new RenderableComponent(cubeMesh2));
-    cubeEntity2.addComponent(new BodyComponent(cubeBody2));
-    entities.push(cubeEntity2);
-
-    // ! cube 3
-    const cubeMesh3 = renderSystem.createMesh(geometry, material);
-    // physics
-    const cubeBody3 = physicsSystem.createBody({
-      mass: 5,
-      position: new CANNON.Vec3(-0.5, 25, -0.5),
-      shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5))
-    });
-
-    const cubeEntity3 = new Entity('box');
-    cubeEntity3.addComponent(new RenderableComponent(cubeMesh3));
-    cubeEntity3.addComponent(new BodyComponent(cubeBody3));
-    entities.push(cubeEntity3);
 
     // ? plane entity
     // render
