@@ -6,15 +6,17 @@ import { RenderSystem } from "./ecs/systems/render.system";
 import { PhysicsSystem } from "./ecs/systems/physics.system";
 import * as CANNON from 'cannon';
 import { BodyComponent } from "./ecs/components/body.component";
+import { ControlsSystem } from "./ecs/systems/controls.system";
 
 function main() {
   // systems init
   const entities: Entity[] = [];
   const systems: System[] = [];
   const renderSystem = new RenderSystem(entities);
+  const controlsSystem = new ControlsSystem(entities, renderSystem.getCamera());
   const physicsSystem = new PhysicsSystem(entities);
 
-  systems.push(physicsSystem, renderSystem);
+  systems.push(physicsSystem, renderSystem, controlsSystem);
 
   createSampleEntities();
 
@@ -54,6 +56,7 @@ function main() {
     entities.push(cubeEntity);
 
     renderSystem.setCameraTarget(cubeEntity);
+    controlsSystem.setCameraRotationFollower(cubeEntity);
 
     // ? plane entity
     // render

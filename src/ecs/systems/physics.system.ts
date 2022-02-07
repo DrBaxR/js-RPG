@@ -1,5 +1,4 @@
 import { Body, IBodyOptions, World } from "cannon";
-import { ComponentType } from "../component";
 import { Entity } from "../entity";
 import { System } from "../system";
 
@@ -9,7 +8,7 @@ export class PhysicsSystem extends System {
   private readonly maxSubSteps = 3;
 
   constructor(entities: Entity[]) {
-    super(entities, [ComponentType.Body]);
+    super(entities);
     this.setup();
   }
 

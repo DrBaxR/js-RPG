@@ -1,11 +1,10 @@
-import { AmbientLight, BufferGeometry, DirectionalLight, Euler, Material, Mesh, PerspectiveCamera, Quaternion, Scene, Spherical, Vector3, WebGLRenderer } from "three";
+import { AmbientLight, BufferGeometry, DirectionalLight, Material, Mesh, PerspectiveCamera, Scene, Spherical, Vector3, WebGLRenderer } from "three";
 import { ComponentType } from "../component";
 import { BodyComponent } from "../components/body.component";
 import { RenderableComponent } from "../components/renderable.component";
 import { Entity } from "../entity";
 import { System } from "../system";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { Vec3 } from "cannon";
 
 export class RenderSystem extends System {
   private renderer: WebGLRenderer;
@@ -16,7 +15,7 @@ export class RenderSystem extends System {
   private cameraTarget: Entity;
 
   constructor(entities: Entity[]) {
-    super(entities, [ComponentType.Renderable, ComponentType.Body]);
+    super(entities);
     this.setup();
   }
 
@@ -87,16 +86,6 @@ export class RenderSystem extends System {
     const body = bodyComponent.body;
     this.controls.target.set(body.position.x, body.position.y, body.position.z);
     this.controls.update();
-
-    // TODO: think if this is worth extracting in a new component that is going to get updated by render system (CameraTarget or smt)
-    // get a vector that points the way the camera is pointing
-    const cameraFront = new Vector3(0, 0, -1);
-    cameraFront.applyQuaternion(this.camera.quaternion);
-    // convert said vector to spherical coordinates
-    const spherical = new Spherical().setFromVector3(cameraFront) // theta is rotation around y axis (left - right)
-
-    // rotate the target so it faces the same way as the cameara
-    body.quaternion.setFromAxisAngle(new Vec3(0, 1, 0), spherical.theta);
   }
 
   createMesh(geometry?: BufferGeometry, material?: Material | Material[], addToScene = true): Mesh {
@@ -111,5 +100,9 @@ export class RenderSystem extends System {
   // target MUST have body component
   setCameraTarget(target: Entity) {
     this.cameraTarget = target;
+  }
+
+  getCamera(): PerspectiveCamera {
+    return this.camera;
   }
 }
