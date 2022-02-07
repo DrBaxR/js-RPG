@@ -7,6 +7,8 @@ import { PhysicsSystem } from "./ecs/systems/physics.system";
 import * as CANNON from 'cannon';
 import { BodyComponent } from "./ecs/components/body.component";
 import { ControlsSystem } from "./ecs/systems/controls.system";
+import { KeyboardReactionComponent } from "./ecs/components/keyboard-reaction.component";
+import { controlPlayer } from "./controls/player-controls";
 
 function main() {
   // systems init
@@ -20,7 +22,6 @@ function main() {
 
   createSampleEntities();
 
-  // for physics step
   let lastTime = 0;
   gameLoop(0);
 
@@ -53,10 +54,26 @@ function main() {
     const cubeEntity = new Entity('player');
     cubeEntity.addComponent(new RenderableComponent(cubeMesh));
     cubeEntity.addComponent(new BodyComponent(cubeBody));
+    cubeEntity.addComponent(new KeyboardReactionComponent(controlPlayer));
     entities.push(cubeEntity);
 
     renderSystem.setCameraTarget(cubeEntity);
     controlsSystem.setCameraRotationFollower(cubeEntity);
+
+    // another cube for reference
+    const geometry2 = new BoxGeometry(8, 8, 4);
+    const material2 = new MeshPhongMaterial({color: 0xaa0011});
+    const mesh2 = renderSystem.createMesh(geometry2, material2);
+    const body2 = physicsSystem.createBody({
+      mass: 10,
+      position: new CANNON.Vec3(0, 10, -5),
+      shape: new CANNON.Box(new CANNON.Vec3(4, 4, 2)),
+      fixedRotation: true
+    });
+    const entity2 = new Entity('box');
+    entity2.addComponent(new RenderableComponent(mesh2));
+    entity2.addComponent(new BodyComponent(body2));
+    entities.push(entity2)
 
     // ? plane entity
     // render

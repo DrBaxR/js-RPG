@@ -8,5 +8,6 @@ export abstract class Component {
 
 export enum ComponentType {
   Renderable = 'RENDERABLE',
-  Body = 'Body',
+  Body = 'BODY',
+  KeyboardReaction = 'KEYBOARD_REACTION',
 }

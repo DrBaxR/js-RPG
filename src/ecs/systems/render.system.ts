@@ -36,7 +36,6 @@ export class RenderSystem extends System {
     this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     this.camera.position.z = 10;
     this.camera.position.y = 5;
-    this.camera.lookAt(0, 0, 0);
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enablePan = false;
@@ -98,7 +97,7 @@ export class RenderSystem extends System {
   }
 
   // target MUST have body component
-  setCameraTarget(target: Entity) {
+  setCameraTarget(target: Entity): void {
     this.cameraTarget = target;
   }
 
