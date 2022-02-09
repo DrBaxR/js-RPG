@@ -14,6 +14,7 @@ const speed = 17;
 const rotationSensitivity = 0.01;
 
 export const keyboardControls = (player: Entity, pressedKeys: any, dt: number): void => {
+  // TODO: Fix issue with diagonal movement (moves slower sometimes???)
   const body = (player.getComponent(ComponentType.Body) as BodyComponent)?.body;
 
   if (!body)

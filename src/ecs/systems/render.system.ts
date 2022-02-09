@@ -1,4 +1,4 @@
-import { AmbientLight, BufferGeometry, DirectionalLight, Material, Mesh, PerspectiveCamera, Scene, Spherical, Vector3, WebGLRenderer } from "three";
+import { AmbientLight, BufferGeometry, DirectionalLight, Material, Mesh, PerspectiveCamera, Quaternion, Scene, Spherical, Vector3, WebGLRenderer } from "three";
 import { ComponentType } from "../component";
 import { BodyComponent } from "../components/body.component";
 import { RenderableComponent } from "../components/renderable.component";
@@ -11,6 +11,7 @@ export class RenderSystem extends System {
 
   private camera: PerspectiveCamera;
   private cameraTarget: Entity;
+  private cameraOffset = new Vector3(0, 2, 5);
 
   constructor(entities: Entity[]) {
     super(entities);
@@ -42,7 +43,7 @@ export class RenderSystem extends System {
     const directionalLight = new DirectionalLight(0xffffff, 1);
     directionalLight.position.set(10, 10, 5)
     this.scene.add(directionalLight);
-    
+
     const ambientLight = new AmbientLight(0xffffff, 0.1);
     this.scene.add(ambientLight);
   }
@@ -75,7 +76,14 @@ export class RenderSystem extends System {
       return;
 
     const body = bodyComponent.body;
-    // TODO
+    const bodyPos = new Vector3(body.position.x, body.position.y, body.position.z);
+    const bodyQuat = new Quaternion(body.quaternion.x, body.quaternion.y, body.quaternion.z, body.quaternion.w);
+
+    const currentOffset = this.cameraOffset.clone().applyQuaternion(bodyQuat);
+    const newPos = bodyPos.clone().add(currentOffset);
+
+    this.camera.position.set(newPos.x, newPos.y, newPos.z);
+    this.camera.quaternion.set(body.quaternion.x, body.quaternion.y, body.quaternion.z, body.quaternion.w)
   }
 
   createMesh(geometry?: BufferGeometry, material?: Material | Material[], addToScene = true): Mesh {
