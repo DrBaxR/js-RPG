@@ -4,14 +4,12 @@ import { BodyComponent } from "../components/body.component";
 import { RenderableComponent } from "../components/renderable.component";
 import { Entity } from "../entity";
 import { System } from "../system";
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
 export class RenderSystem extends System {
   private renderer: WebGLRenderer;
   private scene: Scene;
 
   private camera: PerspectiveCamera;
-  private controls: OrbitControls;
   private cameraTarget: Entity;
 
   constructor(entities: Entity[]) {
@@ -36,12 +34,6 @@ export class RenderSystem extends System {
     this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     this.camera.position.z = 10;
     this.camera.position.y = 5;
-
-    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-    this.controls.enablePan = false;
-    this.controls.minDistance = 2;
-    this.controls.maxDistance = 15;
-    this.controls.maxPolarAngle = Math.PI / 2.1;
   }
 
   private initScene() {
@@ -83,8 +75,7 @@ export class RenderSystem extends System {
       return;
 
     const body = bodyComponent.body;
-    this.controls.target.set(body.position.x, body.position.y, body.position.z);
-    this.controls.update();
+    // TODO
   }
 
   createMesh(geometry?: BufferGeometry, material?: Material | Material[], addToScene = true): Mesh {
@@ -103,5 +94,9 @@ export class RenderSystem extends System {
 
   getCamera(): PerspectiveCamera {
     return this.camera;
+  }
+
+  getScene(): Scene {
+    return this.scene;
   }
 }

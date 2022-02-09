@@ -1,4 +1,4 @@
-import { BoxGeometry, MeshPhongMaterial, PlaneGeometry } from "three";
+import { ArrowHelper, BoxGeometry, MeshPhongMaterial, PlaneGeometry, Vector2, Vector3 } from "three";
 import { RenderableComponent } from "./ecs/components/renderable.component";
 import { Entity } from "./ecs/entity";
 import { System } from "./ecs/system";
@@ -8,17 +8,20 @@ import * as CANNON from 'cannon';
 import { BodyComponent } from "./ecs/components/body.component";
 import { ControlsSystem } from "./ecs/systems/controls.system";
 import { KeyboardReactionComponent } from "./ecs/components/keyboard-reaction.component";
-import { controlPlayer } from "./controls/player-controls";
+import { keyboardControls, mouseControls } from "./controls/player-controls";
+import { MouseReactionComponent } from "./ecs/components/mouse-reaction.component";
+
+export let helper: ArrowHelper;
 
 function main() {
   // systems init
   const entities: Entity[] = [];
   const systems: System[] = [];
   const renderSystem = new RenderSystem(entities);
-  const controlsSystem = new ControlsSystem(entities, renderSystem.getCamera());
+  const controlsSystem = new ControlsSystem(entities);
   const physicsSystem = new PhysicsSystem(entities);
 
-  systems.push(physicsSystem, renderSystem, controlsSystem);
+  systems.push(controlsSystem, physicsSystem, renderSystem);
 
   createSampleEntities();
 
@@ -38,6 +41,14 @@ function main() {
   }
 
   function createSampleEntities() {
+    // DEBUG
+    const dir = new Vector3(1, 0, 0);
+    const origin = new Vector3(0, 2, 0);
+    const length = 0;
+    const hex = 0xffff00;
+    helper = new ArrowHelper(dir, origin, length, hex);
+    renderSystem.getScene().add(helper);
+
     // ! cube entity
     // render
     const geometry = new BoxGeometry();
@@ -51,14 +62,14 @@ function main() {
       fixedRotation: true
     });
 
-    const cubeEntity = new Entity('player');
-    cubeEntity.addComponent(new RenderableComponent(cubeMesh));
-    cubeEntity.addComponent(new BodyComponent(cubeBody));
-    cubeEntity.addComponent(new KeyboardReactionComponent(controlPlayer));
-    entities.push(cubeEntity);
+    const playerEntity = new Entity('player');
+    playerEntity.addComponent(new RenderableComponent(cubeMesh));
+    playerEntity.addComponent(new BodyComponent(cubeBody));
+    playerEntity.addComponent(new MouseReactionComponent(mouseControls));
+    playerEntity.addComponent(new KeyboardReactionComponent(keyboardControls));
+    entities.push(playerEntity);
 
-    renderSystem.setCameraTarget(cubeEntity);
-    controlsSystem.setCameraRotationFollower(cubeEntity);
+    renderSystem.setCameraTarget(playerEntity);
 
     // another cube for reference
     const geometry2 = new BoxGeometry(8, 8, 4);

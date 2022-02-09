@@ -3,7 +3,17 @@ import { ComponentType } from "../ecs/component";
 import { BodyComponent } from "../ecs/components/body.component";
 import { Entity } from "../ecs/entity"
 
-export const controlPlayer = (player: Entity, pressedKeys: any, dt: number): void => {
+enum Controls {
+  FORWARD = 'KeyW',
+  BACKWARD = 'KeyS',
+  LEFT = 'KeyA',
+  RIGHT = 'KeyD',
+}
+
+const speed = 30;
+
+export const keyboardControls = (player: Entity, pressedKeys: any, dt: number): void => {
+  // TODO: Fix keyboard controls
   const body = (player.getComponent(ComponentType.Body) as BodyComponent)?.body;
 
   if (!body)
@@ -30,11 +40,18 @@ export const controlPlayer = (player: Entity, pressedKeys: any, dt: number): voi
   body.velocity.set(direction.x, body.velocity.y, direction.z);
 }
 
-enum Controls {
-  FORWARD = 'KeyW',
-  BACKWARD = 'KeyS',
-  LEFT = 'KeyA',
-  RIGHT = 'KeyD',
-}
+export const mouseControls = (player: Entity, mouseDelta: { x: number, y: number }, dt: number): void => {
+  if (!mouseDelta)
+    return;
 
-const speed = 30;
+  const body = (player.getComponent(ComponentType.Body) as BodyComponent)?.body;
+
+  if (!body)
+    return;
+
+  const rotation = new Quaternion(body.quaternion.x, body.quaternion.y, body.quaternion.z, body.quaternion.w);
+
+  const extraRotation = (new Quaternion()).setFromAxisAngle(new Vector3(0, 1, 0), -mouseDelta.x * 0.01);
+  const newRotation = rotation.multiplyQuaternions(rotation, extraRotation);
+  body.quaternion.set(newRotation.x, newRotation.y, newRotation.z, newRotation.w);
+}
