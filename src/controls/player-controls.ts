@@ -10,34 +10,38 @@ enum Controls {
   RIGHT = 'KeyD',
 }
 
-const speed = 30;
+const speed = 17;
+const rotationSensitivity = 0.01;
 
 export const keyboardControls = (player: Entity, pressedKeys: any, dt: number): void => {
-  // TODO: Fix keyboard controls
   const body = (player.getComponent(ComponentType.Body) as BodyComponent)?.body;
 
   if (!body)
     return;
 
-  const playerRotation = new Quaternion(body.quaternion.x, body.quaternion.y, body.quaternion.z, body.quaternion.w)
+  const playerRotation = new Quaternion(body.quaternion.x, body.quaternion.y, body.quaternion.z, body.quaternion.w);
+  const playerFront = new Vector3(0, 0, -1);
+  playerFront.applyQuaternion(playerRotation);
 
-  let direction = new Vector3(0, 0, 0);
+  let moveDirection = new Vector3(0, 0, 0);
+  if (pressedKeys[Controls.FORWARD]) {
+    moveDirection.z = -1;
+  }
 
-  if (pressedKeys[Controls.FORWARD])
-    direction.add(new Vector3(0, 0, -1));
+  if (pressedKeys[Controls.BACKWARD]) {
+    moveDirection.z = 1;
+  }
 
-  if (pressedKeys[Controls.BACKWARD])
-    direction.add(new Vector3(0, 0, 1));
+  if (pressedKeys[Controls.LEFT]) {
+    moveDirection.x = -1;
+  }
 
-  if (pressedKeys[Controls.LEFT])
-    direction.add(new Vector3(-1, 0, 0));
+  if (pressedKeys[Controls.RIGHT]) {
+    moveDirection.x = 1;
+  }
 
-  if (pressedKeys[Controls.RIGHT])
-    direction.add(new Vector3(1, 0, 0));
-
-  direction.normalize().applyQuaternion(playerRotation).multiplyScalar(speed);
-
-  body.velocity.set(direction.x, body.velocity.y, direction.z);
+  moveDirection.applyQuaternion(playerRotation).setLength(speed);
+  body.velocity.set(moveDirection.x, body.velocity.y, moveDirection.z);
 }
 
 export const mouseControls = (player: Entity, mouseDelta: { x: number, y: number }, dt: number): void => {
@@ -51,7 +55,7 @@ export const mouseControls = (player: Entity, mouseDelta: { x: number, y: number
 
   const rotation = new Quaternion(body.quaternion.x, body.quaternion.y, body.quaternion.z, body.quaternion.w);
 
-  const extraRotation = (new Quaternion()).setFromAxisAngle(new Vector3(0, 1, 0), -mouseDelta.x * 0.01);
+  const extraRotation = (new Quaternion()).setFromAxisAngle(new Vector3(0, 1, 0), -mouseDelta.x * rotationSensitivity);
   const newRotation = rotation.multiplyQuaternions(rotation, extraRotation);
   body.quaternion.set(newRotation.x, newRotation.y, newRotation.z, newRotation.w);
 }

@@ -44,8 +44,8 @@ function main() {
     // DEBUG
     const dir = new Vector3(1, 0, 0);
     const origin = new Vector3(0, 2, 0);
-    const length = 0;
-    const hex = 0xffff00;
+    const length = 1;
+    const hex = 0x00ff00;
     helper = new ArrowHelper(dir, origin, length, hex);
     renderSystem.getScene().add(helper);
 
