@@ -1,4 +1,4 @@
-import { ArrowHelper, BoxGeometry, MeshPhongMaterial, PlaneGeometry, Vector2, Vector3 } from "three";
+import { AnimationMixer, ArrowHelper, BoxGeometry, MeshPhongMaterial, PlaneGeometry, Vector2, Vector3 } from "three";
 import { RenderableComponent } from "./ecs/components/renderable.component";
 import { Entity } from "./ecs/entity";
 import { System } from "./ecs/system";
@@ -10,6 +10,7 @@ import { ControlsSystem } from "./ecs/systems/controls.system";
 import { KeyboardReactionComponent } from "./ecs/components/keyboard-reaction.component";
 import { keyboardControls, mouseControls } from "./controls/player-controls";
 import { MouseReactionComponent } from "./ecs/components/mouse-reaction.component";
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 export let helper: ArrowHelper;
 
@@ -23,6 +24,9 @@ function main() {
 
   systems.push(controlsSystem, physicsSystem, renderSystem);
 
+  // TODO: extract in separate component/system
+  // ! ALSO MODEL SAMPLE
+  let mixer: AnimationMixer;
   createSampleEntities();
 
   let lastTime = 0;
@@ -34,6 +38,7 @@ function main() {
     if (lastTime) {
       const dt = (time - lastTime) / 1000;
       systems.forEach(s => s.update(dt));
+      mixer?.update(dt);
     }
 
     // update time
@@ -71,20 +76,23 @@ function main() {
 
     renderSystem.setCameraTarget(playerEntity);
 
-    // another cube for reference
-    const geometry2 = new BoxGeometry(8, 8, 4);
-    const material2 = new MeshPhongMaterial({color: 0xaa0011});
-    const mesh2 = renderSystem.createMesh(geometry2, material2);
-    const body2 = physicsSystem.createBody({
-      mass: 10,
-      position: new CANNON.Vec3(0, 10, -5),
-      shape: new CANNON.Box(new CANNON.Vec3(4, 4, 2)),
-      fixedRotation: true
-    });
-    const entity2 = new Entity('box');
-    entity2.addComponent(new RenderableComponent(mesh2));
-    entity2.addComponent(new BodyComponent(body2));
-    entities.push(entity2)
+    // ! MODEL SAMPLE
+    const loader = new GLTFLoader();
+    loader.load('assets/Soldier.glb', (gltf) => {
+      const model = gltf.scene;
+      model.quaternion.setFromAxisAngle(new Vector3(0, 1, 0), -Math.PI / 2)
+      renderSystem.getScene().add(model);
+
+      const animations = gltf.animations;
+      mixer = new AnimationMixer(model);
+
+      const idleAction = mixer.clipAction(animations[0]);
+      const walkAction = mixer.clipAction(animations[3]);
+      const runAction = mixer.clipAction(animations[1]);
+
+      runAction.play();
+    })
+    // ! MODEL SAMPLE END
 
     // ? plane entity
     // render
